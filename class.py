@@ -50,13 +50,14 @@ class MongoDB:
         surname = fake.last_name()
         age = randint(18, 65)
         now = datetime.datetime.now()
-        years_employed = now.year - age
+        year_salary = randint(15000, 25000)
+
 
         document = {
             "name": name,
             "surname": surname,
             "age": age,
-            "years_employed": years_employed,
+            "salary": year_salary,
         }
         result = self.collection.insert_one(document)
         print(f"Inserted document with ID: {result.inserted_id}")
@@ -73,8 +74,8 @@ if __name__ == "__main__":
     mongodb = MongoDB(
         host="localhost",
         port=27017,
-        db_name="persons",
-        collection_name="employees_night_shift",
+        db_name="workers",
+        collection_name="employees_salary",
     )
 
     query = {"name": "Steven"}
@@ -93,5 +94,5 @@ if __name__ == "__main__":
     print(f"Deleted {deleted_count} documents")
 
 
-    # numb_of_documents = 50
-    # mongodb.generate_data_base(numb_of_documents)
+    numb_of_documents = 500
+    mongodb.generate_data_base(numb_of_documents)
