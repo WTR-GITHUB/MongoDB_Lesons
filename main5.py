@@ -24,10 +24,10 @@ if __name__ == "__main__":
     db = connect_to_mongodb(mongodb_host, mongodb_port, database_name)
 
     collection = get_database_collection(db, collection_name)
+    age = (40, 50, 57)
+    query = {"age":{"$nin":age}}
 
-    query = {"age":{"$gt":40, "$lt":55},"name":"Robert"}
-
-    response = collection.find(query,{"_id":0, "salary":1})
+    response = collection.find(query,{})
     for document in response:
         print(document)
 
