@@ -2,7 +2,7 @@ import datetime
 from random import randint
 from faker import Faker
 from pymongo import MongoClient
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 from pymongo.errors import PyMongoError, WriteError, OperationFailure
 
 
@@ -15,16 +15,16 @@ class MongoDB:
         self.collection = self.db[collection_name]
 
 
-    def update_one_document(self, query: Dict, update: Dict) -> int:
+    def update_one_document(self, query: Dict, update: Dict) -> Optional[int]:
         try:
-            result = self.collection.update_one(query, {"$set": update})
+            result = self.collection.update_one(query, update)
             return result.modified_count
         except WriteError as e:
             print('An error occurred:', str(e))
         except PyMongoError as e:
             print("Somthing has happen: ", str(e))
     
-    def update_many_document(self, query: Dict, update: Dict) -> int:
+    def update_many_document(self, query: Dict, update: Dict) -> Optional[int]:
         try:
             result = self.collection.update_many(query, {"$set": update})
             return result.modified_count
@@ -33,7 +33,7 @@ class MongoDB:
         except PyMongoError as e:
             print("Somthing has happen: ", str(e))
 
-    def delete_one_documents(self, query: Dict) -> int:
+    def delete_one_documents(self, query: Dict) -> Optional[int]:
         try:
             result = self.collection.delete_one(query)
             return result.deleted_count
@@ -42,7 +42,7 @@ class MongoDB:
         except PyMongoError as e:
             print("Somthing has happen: ", str(e))
 
-    def delete_many_documents(self, query: Dict) -> int:
+    def delete_many_documents(self, query: Dict) -> Optional[int]:
         try:
             result = self.collection.delete_many(query)
             return result.deleted_count
@@ -51,7 +51,7 @@ class MongoDB:
         except PyMongoError as e:
             print("Somthing has happen: ", str(e))
 
-    def insert_one_document(self, document: Dict) -> str:
+    def insert_one_document(self, document: Dict) -> Optional[str]:
         try:
             result = self.collection.insert_one(document)
             # print(f"Printed result: {result}")
@@ -72,7 +72,7 @@ class MongoDB:
         except PyMongoError as e:
             print("Somthing has happen: ", str(e))
 
-    def create_random_person(self) -> str:
+    def create_random_person(self) -> Optional[str]:
         fake = Faker()
         name = fake.first_name()
         surname = fake.last_name()
