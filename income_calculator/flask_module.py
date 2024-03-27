@@ -32,7 +32,6 @@ def index():
 @app.route("/user/<user_id>")
 def display_user(user_id):
     user_data = mongodb.query_equal(field_name="_id", value=ObjectId(user_id))
-    # print(user_data)
     return render_template("index.html", user_data=user_data[0])
 
 

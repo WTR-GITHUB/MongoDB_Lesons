@@ -5,7 +5,16 @@ from pymongo.errors import ConnectionFailure, PyMongoError, ConfigurationError
 import click
 from flask_module import app
 
-# if __name__ == "__main__":
+#============== Šito pats nesugalvojau nusižiūrėjau iš kitų, bet veikia smagu
+def validate_age(ctx, param, value):
+    try:
+        age = int(value)
+        if age < 1 or age > 65:
+            raise ValueError("Age must be between 1 and 65.")
+        return age
+    except ValueError:
+        raise click.BadParameter("Age must be an integer between 1 and 65.")
+# ==========================================================================
 try:
     mongodb = MongoDB(
         host=HOST,
@@ -20,30 +29,15 @@ except ConfigurationError as e:
 except PyMongoError as e:
     print("General failure:", str(e))
 
-# =============== VEIKIANTIS ============================
-# start = int(input("Please enter start age range: "))
-# end = int(input("Please enter end age range: "))
-
-# result = mongodb.query_in_array(field_name="age", value=[start, end])
-# for res in result:
-#     print(f"{res['name']:10s}\t{res['surname']:10s}\t{res['birth_day'].strftime('%Y-%m-%d'):10s}{res['age']:10d}")
-# =============== VEIKIANTIS ============================
-
-# def get_persons():
-#     start = int(input("Please enter start age range: "))
-#     end = int(input("Please enter end age range: "))
-#     result = mongodb.query_in_array(field_name="age", value=[start, end])
-#     for res in result:
-#         print(f"{res['name']:10s}\t{res['surname']:10s}\t{res['birth_day'].strftime('%Y-%m-%d'):10s}{res['age']:10d}")
-
 
 @click.command()
 @click.option(
     "--start",
-    default=18,
+    default=1,
     prompt="Please enter start age range",
     help="Start of age range",
     type=int,
+    callback=validate_age
 )
 @click.option(
     "--end",
@@ -51,6 +45,7 @@ except PyMongoError as e:
     prompt="Please enter end age range",
     help="End of age range",
     type=int,
+    callback=validate_age
 )
 @click.option(
     "--all", "all_info", is_flag=True, help="Print all information about persons."
@@ -74,9 +69,17 @@ def get_persons(start, end, all_info) -> dict:
             print(f"{count:2d} : {res['name']:10s}")
 
         menu_map[count] = res["_id"]
+    while True:
+        try:
+            user_choice = int(input("\nPlease enter user's number: "))
+            if user_choice in menu_map:
+                selected_user = menu_map.get(user_choice)
+                break
+            else:
+                print("Please chose existing ID")
+        except ValueError:
+            print("Stop acting like a monkey in airplane type a number")
 
-    user_choice = input("\nPlease enter user's number: ")
-    selected_user = menu_map.get(int(user_choice))
     user = mongodb.query_equal(field_name="_id", value=selected_user)
     tax = mongodb.tax_calculator(user=user[0])
 
@@ -89,25 +92,14 @@ def get_persons(start, end, all_info) -> dict:
             "income_left": tax[4],
         }
     }
-    updated_user = mongodb.update_one_document(
-        query={"_id": selected_user}, update=update
-    )
-    user_test = mongodb.query_equal(field_name="_id", value=selected_user)
-    user_url = f"http://localhost:5000/user/{user_test[0].get('_id')}"
-    print(user_url)
-    # if updated_user > 0:
-    #     os.system("cls||clear")
-    #     print(f"User: {user[0].get('name')} {user[0].get('surname')}  updated.")
-    #     user = mongodb.query_equal(field_name="_id", value=selected_user)
-    #     print(user_url = f"http://localhost:5000/user/{updated_user_data['_id']}")
-    #     # Here I need generate link and print it.
-    # else:
-    #     os.system("cls||clear")
-    #     print(
-    #         f"No updates made to user: {user[0].get('name')} {user[0].get('surname')}."
-    #     )
+    mongodb.update_one_document(query={"_id": selected_user}, update=update)
+    updated_user = mongodb.query_equal(field_name="_id", value=selected_user)
+    if updated_user:
+        user_url = f"http://localhost:5000/user/{updated_user[0].get('_id')}"
+        print(user_url)
+    else:
+        print("Failed to update user.")
 
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port=5000, debug=False)
     get_persons()
