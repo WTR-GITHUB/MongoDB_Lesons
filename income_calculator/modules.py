@@ -87,4 +87,10 @@ class MongoDB:
         health_tax = (user.get("salary") - gmp_tax - tax_free) * MongoDB.HEALT_TAX
         total_tax = gmp_tax + health_tax
         income_left = user.get("salary") - gmp_tax - health_tax
-        return (round(total_tax, 2), round(income_left, 2), user.get("salary"))
+        return (
+            round(gmp_tax, 2),
+            round(tax_free, 2),
+            round(health_tax, 2),
+            round(total_tax, 2),
+            round(income_left, 2),
+        )

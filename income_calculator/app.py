@@ -3,6 +3,7 @@ from modules import MongoDB
 from config import HOST, PORT, DB_NAME, COLLECTION_NAME
 from pymongo.errors import ConnectionFailure, PyMongoError, ConfigurationError
 import click
+from flask_module import app
 
 # if __name__ == "__main__":
 try:
@@ -73,15 +74,40 @@ def get_persons(start, end, all_info) -> dict:
             print(f"{count:2d} : {res['name']:10s}")
 
         menu_map[count] = res["_id"]
+
     user_choice = input("\nPlease enter user's number: ")
     selected_user = menu_map.get(int(user_choice))
     user = mongodb.query_equal(field_name="_id", value=selected_user)
     tax = mongodb.tax_calculator(user=user[0])
 
-    # update = {}
-    # user = mongodb.update_one_document(query={"_id":selected_user})
-    print(tax)
+    update = {
+        "$set": {
+            "gmp_tax": tax[0],
+            "tax_free": tax[1],
+            "health_tax": tax[2],
+            "total_tax": tax[3],
+            "income_left": tax[4],
+        }
+    }
+    updated_user = mongodb.update_one_document(
+        query={"_id": selected_user}, update=update
+    )
+    user_test = mongodb.query_equal(field_name="_id", value=selected_user)
+    user_url = f"http://localhost:5000/user/{user_test[0].get('_id')}"
+    print(user_url)
+    # if updated_user > 0:
+    #     os.system("cls||clear")
+    #     print(f"User: {user[0].get('name')} {user[0].get('surname')}  updated.")
+    #     user = mongodb.query_equal(field_name="_id", value=selected_user)
+    #     print(user_url = f"http://localhost:5000/user/{updated_user_data['_id']}")
+    #     # Here I need generate link and print it.
+    # else:
+    #     os.system("cls||clear")
+    #     print(
+    #         f"No updates made to user: {user[0].get('name')} {user[0].get('surname')}."
+    #     )
 
 
 if __name__ == "__main__":
+    # app.run(host="0.0.0.0", port=5000, debug=False)
     get_persons()

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Details</title>
+</head>
+
+<body>
+    <h1>User Details</h1>
+    <p>ID: {{ user_data['_id'] }}</p>
+    <p>Name: {{ user_data['name'] }}</p>
+    <p>Surname: {{ user_data['surname'] }}</p>
+    <p>Birth day: {{ user_data['birth_day'].strftime('%Y-%m-%d') }}</p>
+    <p>Age: {{ user_data['age'] }}</p>
+    <p>Income before tax: {{ user_data['salary'] }}</p>
+    <p>GMP tax: {{ user_data['gmp_tax'] }}</p>
+    <p>Health care tax: {{ user_data['gmp_tax'] }}</p>
+    <p>Free tax amount: {{ user_data['tax_free'] }}</p>
+    <p>Total tax: {{ user_data['tax_free'] }}</p>
+    <p>Income balance after tax paid: {{ user_data['income_left'] }}</p>
+</body>
+
+</html>
